@@ -1,17 +1,17 @@
 FROM node:18-alpine AS base
 
-# Instala libc6-compat e OpenSSL necessários para o Prisma Client no Alpine Linux
+# Instala bibliotecas necessárias para o Prisma rodar no Alpine
 RUN apk add --no-cache libc6-compat openssl
 
 FROM base AS deps
 WORKDIR /app
 
-# Copia arquivos do package e prisma
+# Copia arquivos do pacote
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Instala dependências sem verificar rigor de versão
-RUN npm install --legacy-peer-deps
+# Instala dependências ignorando scripts pós-instalação para não falhar
+RUN npm install --no-audit --no-fund
 
 FROM base AS builder
 WORKDIR /app
@@ -20,7 +20,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Gera o cliente do Prisma e faz o build do Next.js
+# Gera os arquivos do cliente Prisma e faz o build do Next.js
 RUN npx prisma generate
 RUN npm run build
 

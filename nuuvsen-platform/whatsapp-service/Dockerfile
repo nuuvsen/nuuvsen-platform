@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Instala dependências do sistema necessárias para o Chromium/Puppeteer
+# Instala Chromium e dependências do sistema para o Puppeteer
 RUN apt-get update && apt-get install -y \
     chromium \
     fonts-ipafont-gothic \
@@ -19,7 +19,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --legacy-peer-deps
+RUN npm install --no-audit --no-fund
 
 COPY . .
 
