@@ -1,0 +1,16 @@
+# Node
+node_modules/
+.next/
+out/
+build/
+npm-debug.log*
+
+# Docker & Persistência Local
+whatsapp-service/tokens/
+.env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store

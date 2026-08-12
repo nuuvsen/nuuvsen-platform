@@ -1,0 +1,57 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum LeadStatus {
+  NOVO
+  EM_ANDAMENTO
+  RESPONDIDO
+  ARQUIVADO
+}
+
+enum TipoSolicitacao {
+  ORCAMENTO
+  DUVIDA
+}
+
+model Lead {
+  id               String          @id @default(uuid())
+  nome             String
+  email            String
+  telefone         String
+  tipoSolicitacao  TipoSolicitacao @default(ORCAMENTO)
+  servicoInteresse String
+  mensagem         String          @db.Text
+  status           LeadStatus      @default(NOVO)
+  origem           String          @default("Landing Page")
+  whatsappEnviado  Boolean         @default(false)
+  whatsappErro     String?         @db.Text
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@map("leads")
+}
+
+model AdminUser {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senhaHash String
+  createdAt DateTime @default(now())
+
+  @@map("admin_users")
+}
+
+model ConfiguracaoWhatsapp {
+  id            String    @id @default("default")
+  numeroDestino String
+  sessaoAtiva   Boolean   @default(false)
+  ultimaConexao DateTime? @updatedAt
+
+  @@map("configuracoes_whatsapp")
+}

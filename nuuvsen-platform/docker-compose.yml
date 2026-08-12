@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: nuuvsen_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nuuvsen_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nuuvsen_pass_secure}
+      POSTGRES_DB: ${POSTGRES_DB:-nuuvsen_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nuuvsen_admin} -d ${POSTGRES_DB:-nuuvsen_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  whatsapp-service:
+    build:
+      context: ./whatsapp-service
+      dockerfile: Dockerfile
+    container_name: nuuvsen_whatsapp
+    restart: always
+    environment:
+      PORT: 3001
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+    volumes:
+      - whatsapp_session:/app/tokens
+    expose:
+      - "3001"
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: nuuvsen_app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-nuuvsen_admin}:${POSTGRES_PASSWORD:-nuuvsen_pass_secure}@db:5432/${POSTGRES_DB:-nuuvsen_db}?schema=public"
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      ADMIN_WHATSAPP_NUMBER: ${ADMIN_WHATSAPP_NUMBER}
+      WHATSAPP_SERVICE_URL: "http://whatsapp-service:3001"
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      whatsapp-service:
+        condition: service_started
+
+volumes:
+  postgres_data:
+    driver: local
+  whatsapp_session:
+    driver: local
