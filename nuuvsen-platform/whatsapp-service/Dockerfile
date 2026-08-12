@@ -19,12 +19,10 @@ WORKDIR /app
 
 COPY package*.json ./
 
-# Substituído 'npm ci --only=production' por 'npm install --omit=dev' para não exigir package-lock.json
-RUN npm install --omit=dev
+RUN npm install --legacy-peer-deps
 
 COPY . .
 
-# Diretório onde a sessão do WhatsApp é gravada
 RUN mkdir -p /app/tokens
 
 EXPOSE 3001

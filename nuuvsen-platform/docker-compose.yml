@@ -19,13 +19,13 @@ services:
 
   whatsapp-service:
     build:
-      context: ./whatsapp-service
+      context: ./nuuvsen-platform/whatsapp-service
       dockerfile: Dockerfile
     container_name: nuuvsen_whatsapp
     restart: always
     environment:
       PORT: 3001
-      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-nuuvsen-internal-key-2026}
     volumes:
       - whatsapp_session:/app/tokens
     expose:
@@ -33,7 +33,7 @@ services:
 
   app:
     build:
-      context: ./app
+      context: ./nuuvsen-platform/app
       dockerfile: Dockerfile
     container_name: nuuvsen_app
     restart: always
@@ -41,11 +41,11 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: "postgresql://${POSTGRES_USER:-nuuvsen_admin}:${POSTGRES_PASSWORD:-nuuvsen_pass_secure}@db:5432/${POSTGRES_DB:-nuuvsen_db}?schema=public"
-      NEXTAUTH_URL: ${NEXTAUTH_URL}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      ADMIN_WHATSAPP_NUMBER: ${ADMIN_WHATSAPP_NUMBER}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-super-secret-nextauth-key-nuuvsen-2026}
+      ADMIN_WHATSAPP_NUMBER: ${ADMIN_WHATSAPP_NUMBER:-5511999999999}
       WHATSAPP_SERVICE_URL: "http://whatsapp-service:3001"
-      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-nuuvsen-internal-key-2026}
     depends_on:
       db:
         condition: service_healthy
