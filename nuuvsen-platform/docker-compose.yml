@@ -19,7 +19,7 @@ services:
 
   whatsapp-service:
     build:
-      context: ./nuuvsen-platform/whatsapp-service
+      context: ./whatsapp-service
       dockerfile: Dockerfile
     container_name: nuuvsen_whatsapp
     restart: always
@@ -33,7 +33,7 @@ services:
 
   app:
     build:
-      context: ./nuuvsen-platform/app
+      context: ./app
       dockerfile: Dockerfile
     container_name: nuuvsen_app
     restart: always
